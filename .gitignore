@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual environments
+venv/
+.env/
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Config
+*.digitalworks_devops_cli_config.json
+
+# Logs
+*.log
+
+# Test outputs
+htmlcov/
+.coverage
+
+# Misc
+*.swp
+*.bak
