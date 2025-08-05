@@ -79,7 +79,6 @@ def main():
                         print(f"Sprint: {sprint_stat['sprint']}")
                         print(f"  Committed SP: {sprint_stat['committed_sp']}")
                         print(f"  Achieved SP: {sprint_stat['achieved_sp']}")
-                        print(f"  Avg Committed SP (last 3): {sprint_stat['avg_committed_sp']}")
                     print(f"  Avg Achieved SP (last 3): {avg_velocity}")
                 else:
                     print("No sprint stats available or error occurred.")

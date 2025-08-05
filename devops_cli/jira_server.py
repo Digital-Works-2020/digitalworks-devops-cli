@@ -46,7 +46,7 @@ class JiraServerClient:
         # Get closed sprints sorted by completeDate descending
         sprints = report_json.get("sprints", [])
         closed_sprints = [s for s in sprints if s.get("state") == "CLOSED" and s.get("completeDate")]
-        closed_sprints = sorted(closed_sprints, key=lambda s: s["completeDate"], reverse=True)
+        closed_sprints = sorted(closed_sprints, key=lambda s: s["completeDate"], reverse=False)
         last_sprints = closed_sprints[:num_sprints]
         for sprint in last_sprints:
             name, sprint_id = sprint["name"], sprint["id"]
