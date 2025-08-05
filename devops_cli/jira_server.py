@@ -13,6 +13,8 @@ class JiraServerClient:
     """
     def __init__(self, url: str, api_token: str) -> None:
         """Initialize JiraServerClient with credentials."""
+        self.url = url
+        self.api_token = api_token
         self.jira = JIRA(server=url, token_auth = api_token, validate=True)
 
     def get_sprint_story_points_stats(self, board_name: str, num_sprints: int = 3) -> Optional[list[dict]]:
