@@ -23,7 +23,7 @@ class JiraServerClient:
         stats = []
         try:
             report_json = self.jira._get_json(
-                f'/rest/greenhopper/1.0/rapid/charts/velocity?rapidViewId=',
+                f'/rest/greenhopper/1.0/rapid/charts/velocity?',
                 params={
                     'rapidViewId': board_id
                 })
