@@ -20,65 +20,35 @@ class JiraServerClient:
         if board_id is None:
             print(f"Board '{board_name}' not found.")
             return None
-        # Get closed sprints only
-        sprints = []
-        start_at = 0
-        max_results = 50
-        while True:
-            try:
-                batch = self.jira.sprints(board_id, startAt=start_at, maxResults=max_results)
-            except Exception as exc:
-                print(f"Error fetching sprints: {exc}")
-                return None
-            sprints.extend(batch)
-            if len(batch) < max_results:
-                break
-            start_at += max_results
-        closed_sprints = [s for s in sprints if getattr(s, 'state', None) == 'closed']
-        if not closed_sprints:
-            print(f"No closed sprints found for board '{board_name}'.")
-            return []
-        # Sort by endDate (or startDate if endDate missing), descending
-        closed_sprints = sorted(
-            closed_sprints,
-            key=lambda s: getattr(s, 'endDate', getattr(s, 'startDate', '')),
-            reverse=True
-        )
-        closed_sprints = closed_sprints[:num_sprints]
         stats = []
-        for sprint in closed_sprints:
-            sprint_id = getattr(sprint, 'id', None)
-            sprint_name = getattr(sprint, 'name', None)
-            if not sprint_id or not sprint_name:
+        try:
+            report_json = self.jira._get_json(
+                f'/rest/greenhopper/1.0/rapid/charts/velocity?rapidViewId=',
+                params={
+                    'rapidViewId': board_id
+                })
+        except Exception as exc:
+            print(f"Error fetching sprint report for {sprint_name}: {exc}")
+            return None
+        # Directly relay values from the report
+        # Get last 3 sprints
+        sprints = report_json.get("sprints", [])[-3:]
+        for sprint in sprints:
+            name, sprint_id = (sprint["name"], sprint["id"])
+            sprint_data = next(
+                (d for d in velocity_data["velocityStatEntries"].values() if d["sprintId"] == sprint_id),
+                None
+            )
+            if not sprint_data:
                 continue
-            # Use Jira sprint report endpoint for SP extraction
-            try:
-                report = self.jira._get_json(
-                    f'rest/greenhopper/1.0/rapid/charts/sprintreport',
-                    params={
-                        'rapidViewId': board_id,
-                        'sprintId': sprint_id
-                    }
-                )
-            except Exception as exc:
-                print(f"Error fetching sprint report for {sprint_name}: {exc}")
-                continue
-            # Directly relay values from the report
-            committed_sp = report.get('sprint', {}).get('committed', 0)
-            achieved_sp = report.get('sprint', {}).get('completed', 0)
             stats.append({
-                'sprint': sprint_name,
-                'committed_sp': committed_sp,
-                'achieved_sp': achieved_sp
+                "sprint": name,
+                "committed_sp" : sprint_data["estimated"]["value"],
+                "achieved_sp"  : sprint_data["completed"]["value"]
             })
-        # Calculate average SP only if stats are present
-        if stats:
-            avg_committed = sum(s['committed_sp'] for s in stats) / len(stats)
-            avg_achieved = sum(s['achieved_sp'] for s in stats) / len(stats)
-            for s in stats:
-                s['avg_committed_sp'] = avg_committed
-                s['avg_achieved_sp'] = avg_achieved
-        return stats
+        avg_velocity = sum(s["achieved_sp"] for s in stats) / len(stats)
+        return stats, avg_velocity
+
 
     def get_my_issues_in_current_sprint(self, board_name: str, max_results: int = 50) -> Optional[list[Any]]:
         """

@@ -72,7 +72,7 @@ def main():
                 else:
                     print("No issues assigned to you in current sprint or error occurred.")
             elif op_choice == "3":
-                stats = client.get_sprint_story_points_stats(board_name)
+                stats, avg_velocity = client.get_sprint_story_points_stats(board_name)
                 if stats:
                     print("\nStory Points for Last 3 Closed Sprints:")
                     for sprint_stat in stats:
@@ -80,7 +80,7 @@ def main():
                         print(f"  Committed SP: {sprint_stat['committed_sp']}")
                         print(f"  Achieved SP: {sprint_stat['achieved_sp']}")
                         print(f"  Avg Committed SP (last 3): {sprint_stat['avg_committed_sp']}")
-                        print(f"  Avg Achieved SP (last 3): {sprint_stat['avg_achieved_sp']}")
+                    print(f"  Avg Achieved SP (last 3): {avg_velocity}")
                 else:
                     print("No sprint stats available or error occurred.")
             else:
