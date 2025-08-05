@@ -58,9 +58,17 @@ def main():
             elif op_choice == "2":
                 issues = client.get_my_issues_in_current_sprint(board_name)
                 if issues:
-                    print(f"\nYour issues in current sprint:")
+                    # Segregate issues by status
+                    status_map = {}
                     for issue in issues:
-                        print(f"- {issue.key}: {issue.fields.summary}")
+                        status = getattr(issue.fields, 'status', None)
+                        status_name = status.name if status else "Unknown"
+                        status_map.setdefault(status_name, []).append(issue)
+                    print(f"\nYour issues in current sprint (segregated by status):")
+                    for status_name, status_issues in status_map.items():
+                        print(f"\nStatus: {status_name}")
+                        for issue in status_issues:
+                            print(f"- {issue.key}: {issue.fields.summary}")
                 else:
                     print("No issues assigned to you in current sprint or error occurred.")
             else:
