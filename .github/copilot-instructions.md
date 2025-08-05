@@ -16,7 +16,7 @@ This project is a unified, modular DevOps CLI for Digitalworks2020, starting wit
 **Config Structure:**
 - Uses a dictionary per tool, with an 'accounts' sub-dictionary for multiple account support.
 - Each tool defines its credential fields in a central config (see TOOL_CONFIGS in config.py).
-- JiraCloud and JiraServer are treated as separate tools (e.g., 'jira_cloud', 'jira_server'). Currently, only JiraCloud is supported.
+- JiraCloud and JiraServer are treated as separate tools (e.g., 'jira_cloud', 'jira_server'). Both support listing the current sprint name for a project/board using the python-jira module and OOP design. Pipfile includes `jira` as a requirement.
 - Easily extendable: add new tools by updating SUPPORTED_TOOLS and TOOL_CONFIGS.
 
 **User Experience:**
@@ -36,5 +36,7 @@ This project is a unified, modular DevOps CLI for Digitalworks2020, starting wit
 - Use `.gitignore` to exclude config, environment, and build artifacts.
 
 **Best Practices:**
-- All code and tests should be well-documented, modular, and follow PEP8, Codacy, and pytest standards.
+- All code and tests should be well-documented, modular, and follow PEP8 and Codacy standards (typing, error handling, no debug prints in production code).
+- Use clear docstrings for all public classes and methods.
+- Avoid debug prints; use logging if needed for enterprise code.
 - Keep copilot-instructions.md updated with any major architectural, config, or folder structure changes.
