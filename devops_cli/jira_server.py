@@ -39,23 +39,25 @@ class JiraServerClient:
             report_json = requests.get(
                 f'{self.url}/rest/greenhopper/1.0/rapid/charts/velocity?rapidViewId={board_id}',
                 headers = headers
-                ).json()
+            ).json()
         except Exception as exc:
-            print(f"Error fetching sprint report for {sprint_name}: {exc}")
+            print(f"Error fetching velocity report: {exc}")
             return None
-        # Directly relay values from the report
-        # Get last 3 sprints
-        sprints = report_json.get("sprints", [])[-3:]
-        for sprint in sprints:
-            name, sprint_id = (sprint["name"], sprint["id"])
-            for key, value in report_json["velocityStatEntries"].items():
-                if key == sprint_id:
-                    stats.append({
-                        "sprint": name,
-                        "committed_sp": value["estimated"]["value"],
-                        "achieved_sp": value["completed"]["value"]
-                    })
-        avg_velocity = sum(s["achieved_sp"] for s in stats) / len(stats)
+        # Get closed sprints sorted by completeDate descending
+        sprints = report_json.get("sprints", [])
+        closed_sprints = [s for s in sprints if s.get("state") == "CLOSED" and s.get("completeDate")]
+        closed_sprints = sorted(closed_sprints, key=lambda s: s["completeDate"], reverse=True)
+        last_sprints = closed_sprints[:num_sprints]
+        for sprint in last_sprints:
+            name, sprint_id = sprint["name"], sprint["id"]
+            velocity_entry = report_json["velocityStatEntries"].get(str(sprint_id))
+            if velocity_entry:
+                stats.append({
+                    "sprint": name,
+                    "committed_sp": velocity_entry["estimated"]["value"],
+                    "achieved_sp": velocity_entry["completed"]["value"]
+                })
+        avg_velocity = sum(s["achieved_sp"] for s in stats) / len(stats) if stats else 0
         return stats, avg_velocity
 
 
