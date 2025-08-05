@@ -5,8 +5,16 @@ Follows PEP8, Codacy, and Copilot workspace instructions for maintainability and
 """
 from jira import JIRA
 from typing import Optional, Any
+import requests
 
 class JiraServerClient:
+    """
+    JiraServerClient provides methods to interact with Jira Server boards and sprints.
+    """
+    def __init__(self, url: str, api_token: str) -> None:
+        """Initialize JiraServerClient with credentials."""
+        self.jira = JIRA(server=url, token_auth = api_token, validate=True)
+
     def get_sprint_story_points_stats(self, board_name: str, num_sprints: int = 3) -> Optional[list[dict]]:
         """
         Get committed SP, achieved SP, and average SP for the last num_sprints closed sprints on the board using Jira sprint report.
@@ -16,17 +24,20 @@ class JiraServerClient:
         Returns:
             List of dicts with sprint name, committed SP, achieved SP, and average SP.
         """
+        headers = {
+            "Authorization": f"Bearer {self.api_token}",
+            "Accept": "application/json"
+        }
         board_id = self.get_board_id(board_name)
         if board_id is None:
             print(f"Board '{board_name}' not found.")
             return None
         stats = []
         try:
-            report_json = self.jira._session.get(
-                f'/rest/greenhopper/1.0/rapid/charts/velocity?',
-                params={
-                    'rapidViewId': board_id
-                }).json()
+            report_json = requests.get(
+                f'{self.url}/rest/greenhopper/1.0/rapid/charts/velocity?rapidViewId={board_id}',
+                headers = headers
+                ).json()
         except Exception as exc:
             print(f"Error fetching sprint report for {sprint_name}: {exc}")
             return None
@@ -86,13 +97,6 @@ class JiraServerClient:
                 break
             start_at += max_results
         return all_issues
-
-    """
-    JiraServerClient provides methods to interact with Jira Server boards and sprints.
-    """
-    def __init__(self, url: str, api_token: str) -> None:
-        """Initialize JiraServerClient with credentials."""
-        self.jira = JIRA(server=url, token_auth = api_token, validate=True)
 
     def get_active_sprint(self, board_id: int) -> Optional[Any]:
         """
