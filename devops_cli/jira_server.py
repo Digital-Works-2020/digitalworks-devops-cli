@@ -3,6 +3,7 @@ JiraServer integration for Digitalworks2020 DevOps CLI.
 Lists current sprint name for a given project using OOP and python-jira.
 Follows PEP8, Codacy, and Copilot workspace instructions for maintainability and reliability.
 """
+from datetime import datetime
 from jira import JIRA
 from typing import Optional, Any
 import requests
@@ -46,7 +47,17 @@ class JiraServerClient:
         # Get closed sprints sorted by completeDate descending
         sprints = report_json.get("sprints", [])
         closed_sprints = [s for s in sprints if s.get("state") == "CLOSED" and s.get("completeDate")]
-        closed_sprints = sorted(closed_sprints, key=lambda s: s["completeDate"], reverse=False)
+        def parse_jira_date(date_str):
+            try:
+                return datetime.strptime(date_str.strip(), "%d/%b/%y %I:%M %p")
+            except Exception:
+                return None
+        closed_sprints = [s for s in closed_sprints if parse_jira_date(s["completeDate"])]
+        closed_sprints = sorted(
+            closed_sprints,
+            key=lambda s: parse_jira_date(s["completeDate"]),
+            reverse=True
+        )
         last_sprints = closed_sprints[:num_sprints]
         for sprint in last_sprints:
             name, sprint_id = sprint["name"], sprint["id"]
