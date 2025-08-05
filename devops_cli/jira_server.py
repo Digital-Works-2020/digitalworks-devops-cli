@@ -22,11 +22,11 @@ class JiraServerClient:
             return None
         stats = []
         try:
-            report_json = self.jira._get_json(
+            report_json = self.jira._session.get(
                 f'/rest/greenhopper/1.0/rapid/charts/velocity?',
                 params={
                     'rapidViewId': board_id
-                })
+                }).json()
         except Exception as exc:
             print(f"Error fetching sprint report for {sprint_name}: {exc}")
             return None
