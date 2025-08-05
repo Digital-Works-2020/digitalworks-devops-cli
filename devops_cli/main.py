@@ -53,7 +53,7 @@ def main():
             from devops_cli.jira_server import JiraServerClient
             creds = config[tool]['accounts'][account]
             client = JiraServerClient(
-                creds['url'], creds['password']
+                creds['url'], creds['api_token']
             )
             project_key = creds.get('default_project')
             board_name = creds.get('default_board')
