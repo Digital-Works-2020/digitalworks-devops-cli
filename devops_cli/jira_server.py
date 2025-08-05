@@ -7,6 +7,79 @@ from jira import JIRA
 from typing import Optional, Any
 
 class JiraServerClient:
+    def get_sprint_story_points_stats(self, board_name: str, num_sprints: int = 3) -> Optional[list[dict]]:
+        """
+        Get committed SP, achieved SP, and average SP for the last num_sprints closed sprints on the board using Jira sprint report.
+        Args:
+            board_name (str): The name of the Jira board.
+            num_sprints (int): Number of last closed sprints to analyze.
+        Returns:
+            List of dicts with sprint name, committed SP, achieved SP, and average SP.
+        """
+        board_id = self.get_board_id(board_name)
+        if board_id is None:
+            print(f"Board '{board_name}' not found.")
+            return None
+        # Get closed sprints only
+        sprints = []
+        start_at = 0
+        max_results = 50
+        while True:
+            try:
+                batch = self.jira.sprints(board_id, startAt=start_at, maxResults=max_results)
+            except Exception as exc:
+                print(f"Error fetching sprints: {exc}")
+                return None
+            sprints.extend(batch)
+            if len(batch) < max_results:
+                break
+            start_at += max_results
+        closed_sprints = [s for s in sprints if getattr(s, 'state', None) == 'closed']
+        if not closed_sprints:
+            print(f"No closed sprints found for board '{board_name}'.")
+            return []
+        # Sort by endDate (or startDate if endDate missing), descending
+        closed_sprints = sorted(
+            closed_sprints,
+            key=lambda s: getattr(s, 'endDate', getattr(s, 'startDate', '')),
+            reverse=True
+        )
+        closed_sprints = closed_sprints[:num_sprints]
+        stats = []
+        for sprint in closed_sprints:
+            sprint_id = getattr(sprint, 'id', None)
+            sprint_name = getattr(sprint, 'name', None)
+            if not sprint_id or not sprint_name:
+                continue
+            # Use Jira sprint report endpoint for SP extraction
+            try:
+                report = self.jira._get_json(
+                    f'rest/greenhopper/1.0/rapid/charts/sprintreport',
+                    params={
+                        'rapidViewId': board_id,
+                        'sprintId': sprint_id
+                    }
+                )
+            except Exception as exc:
+                print(f"Error fetching sprint report for {sprint_name}: {exc}")
+                continue
+            # Directly relay values from the report
+            committed_sp = report.get('sprint', {}).get('committed', 0)
+            achieved_sp = report.get('sprint', {}).get('completed', 0)
+            stats.append({
+                'sprint': sprint_name,
+                'committed_sp': committed_sp,
+                'achieved_sp': achieved_sp
+            })
+        # Calculate average SP only if stats are present
+        if stats:
+            avg_committed = sum(s['committed_sp'] for s in stats) / len(stats)
+            avg_achieved = sum(s['achieved_sp'] for s in stats) / len(stats)
+            for s in stats:
+                s['avg_committed_sp'] = avg_committed
+                s['avg_achieved_sp'] = avg_achieved
+        return stats
+
     def get_my_issues_in_current_sprint(self, board_name: str, max_results: int = 50) -> Optional[list[Any]]:
         """
         Get issues assigned to the current user in the current active sprint for the given board.
