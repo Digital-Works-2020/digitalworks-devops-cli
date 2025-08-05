@@ -77,9 +77,9 @@ def main():
                     print("\nStory Points for Last 3 Closed Sprints:")
                     for sprint_stat in stats:
                         print(f"Sprint: {sprint_stat['sprint']}")
-                        print(f"  Committed SP: {sprint_stat['committed_sp']}")
-                        print(f"  Achieved SP: {sprint_stat['achieved_sp']}")
-                    print(f"  Avg Achieved SP (last 3): {avg_velocity}")
+                        print(f"  Committed SP: {sprint_stat['committed_sp']:.2f}")
+                        print(f"  Achieved SP: {sprint_stat['achieved_sp']:.2f}")
+                    print(f"Avg Achieved SP (last 3): {avg_velocity:.2f}")
                 else:
                     print("No sprint stats available or error occurred.")
             else:
@@ -102,12 +102,15 @@ def main():
             creds = config[tool]['accounts'][account]
             project_key = creds.get('default_project')
             board_name = creds.get('default_board')
-            use_default = False
+            use_default_project = False
+            use_default_board = False
             if project_key:
-                use_default = prompt_input(f"Use default project '{project_key}'? (y/n): ").strip().lower() == "y"
-            if not use_default:
+                use_default_project = prompt_input(f"Use default project '{project_key}'? (y/n): ").strip().lower() == "y"
+            if not use_default_project:
                 project_key = prompt_input("Enter Jira project key: ").strip()
-            if not board_name:
+            if board_name:
+                use_default_board = prompt_input(f"Use default board '{board_name}'? (y/n): ").strip().lower() == "y"
+            if not use_default_board:
                 board_name = prompt_input("Enter Jira board name: ").strip()
             while True:
                 handle_jira_server(creds, project_key, board_name)
