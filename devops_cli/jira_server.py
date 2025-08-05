@@ -7,6 +7,43 @@ from jira import JIRA
 from typing import Optional, Any
 
 class JiraServerClient:
+    def get_my_issues_in_current_sprint(self, board_name: str, max_results: int = 50) -> Optional[list[Any]]:
+        """
+        Get issues assigned to the current user in the current active sprint for the given board.
+        Handles pagination.
+        Args:
+            board_name (str): The name of the Jira board.
+            max_results (int): Maximum number of issues per page.
+        Returns:
+            List of issues assigned to the current user in the current sprint, or None if error.
+        """
+        board_id = self.get_board_id(board_name)
+        if board_id is None:
+            print(f"Board '{board_name}' not found.")
+            return None
+        sprint = self.get_active_sprint(board_id)
+        if sprint is None:
+            print(f"No active sprint found for board '{board_name}'.")
+            return None
+        sprint_id = getattr(sprint, 'id', None)
+        if sprint_id is None:
+            print("Sprint ID not found.")
+            return None
+        jql = f"assignee = currentUser() AND sprint = {sprint_id}"
+        all_issues = []
+        start_at = 0
+        while True:
+            try:
+                issues = self.jira.search_issues(jql, startAt=start_at, maxResults=max_results)
+            except Exception as exc:
+                print(f"Error fetching issues for current user in sprint: {exc}")
+                return None
+            all_issues.extend(issues)
+            if len(issues) < max_results:
+                break
+            start_at += max_results
+        return all_issues
+
     """
     JiraServerClient provides methods to interact with Jira Server boards and sprints.
     """

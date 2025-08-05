@@ -26,6 +26,10 @@ TOOL_CONFIGS: Dict[str, Dict[str, Any]] = {
         "fields": [
             {"name": "url", "prompt": "Server URL", "secure": False},
             {"name": "api_token", "prompt": "Server API Token", "secure": True}
+        ],
+        "operations": [
+            {"key": "current_sprint_name", "label": "Display current sprint name"},
+            {"key": "my_issues_in_sprint", "label": "List my issues in current sprint"}
         ]
     },
     # Future: Add 'aws', etc.
