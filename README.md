@@ -11,7 +11,7 @@ A unified, modular CLI for DevOps operations across tools like Jira Cloud, Jira 
 
 ## Supported Tools
 - Jira Cloud (multi-account, secure credentials, default project/board)
-- Jira Server (multi-account, secure credentials, default project/board)
+- Jira Server V9.0(multi-account, secure credentials, default project/board)
 - Modular for future tools
 
 ## Configuration

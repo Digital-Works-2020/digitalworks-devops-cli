@@ -48,17 +48,13 @@ class JiraServerClient:
         sprints = report_json.get("sprints", [])[-3:]
         for sprint in sprints:
             name, sprint_id = (sprint["name"], sprint["id"])
-            sprint_data = next(
-                (d for d in report_json["velocityStatEntries"].values() if d["sprintId"] == sprint_id),
-                None
-            )
-            if not sprint_data:
-                continue
-            stats.append({
-                "sprint": name,
-                "committed_sp" : sprint_data["estimated"]["value"],
-                "achieved_sp"  : sprint_data["completed"]["value"]
-            })
+            for key, value in report_json["velocityStatEntries"].items():
+                if key == sprint_id:
+                    stats.append({
+                        "sprint": name,
+                        "committed_sp": value["estimated"]["value"],
+                        "achieved_sp": value["completed"]["value"]
+                    })
         avg_velocity = sum(s["achieved_sp"] for s in stats) / len(stats)
         return stats, avg_velocity
 
