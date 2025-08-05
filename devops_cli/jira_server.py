@@ -49,7 +49,7 @@ class JiraServerClient:
         for sprint in sprints:
             name, sprint_id = (sprint["name"], sprint["id"])
             sprint_data = next(
-                (d for d in velocity_data["velocityStatEntries"].values() if d["sprintId"] == sprint_id),
+                (d for d in report_json["velocityStatEntries"].values() if d["sprintId"] == sprint_id),
                 None
             )
             if not sprint_data:
