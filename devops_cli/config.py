@@ -33,11 +33,19 @@ TOOL_CONFIGS: Dict[str, Dict[str, Any]] = {
             {"key": "sprint_sp_stats", "label": "Get SP for Last 3 Sprint Stats"}
         ]
     },
+    "aws_sso": {
+        "fields": [],
+        "info": "AWS SSO integration. No credentials required; uses AWS CLI profiles.",
+        "operations": [
+            {"key": "current_month_cost", "label": "Get current month AWS cost"},
+            {"key": "prev_month_cost", "label": "Get previous month AWS cost (if exists)"}
+        ]
+    },
     # Future: Add 'aws', etc.
 }
 
 CONFIG_PATH: str = os.path.expanduser("~/.digitalworks_devops_cli_config.json")
-SUPPORTED_TOOLS: list[str] = ["jira_cloud", "jira_server"]  # Extendable for future tools
+SUPPORTED_TOOLS: list[str] = ["jira_cloud", "jira_server", "aws_sso"]  # Extendable for future tools
 
 def atomic_write_config(config: Dict[str, Any]) -> None:
     """
@@ -108,6 +116,10 @@ def create_or_load_config(prompt_input: Callable = input) -> Tuple[Dict[str, Any
         config = {tool: {"accounts": {}} for tool in SUPPORTED_TOOLS}
 
     tool: str = select_tool(prompt_input=prompt_input)
+    # Normalize tool name to lowercase for AWS SSO check
+    if tool.lower() == "aws_sso":
+        return config, tool, "aws_sso_profile"
+
     accounts: Dict[str, Dict[str, str]] = config.get(tool, {}).get("accounts", {})
 
     def handle_jira_cloud_account(account_name: str, creds: Dict[str, str]) -> Dict[str, str]:
