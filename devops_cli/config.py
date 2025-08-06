@@ -116,6 +116,11 @@ def create_or_load_config(prompt_input: Callable = input) -> Tuple[Dict[str, Any
         config = {tool: {"accounts": {}} for tool in SUPPORTED_TOOLS}
 
     tool: str = select_tool(prompt_input=prompt_input)
+
+    # For AWS SSO, skip all account logic and return immediately with dummy account name
+    if tool == "aws_sso":
+        return config, tool, "aws_sso_profile"
+
     accounts: Dict[str, Dict[str, str]] = config.get(tool, {}).get("accounts", {})
 
     def handle_jira_cloud_account(account_name: str, creds: Dict[str, str]) -> Dict[str, str]:
