@@ -16,16 +16,19 @@ def prompt_input(prompt):
 def main():
     print("\nWelcome to Digitalworks2020 DevOps CLI!")
     while True:
-        config, tool, account = create_or_load_config(prompt_input=prompt_input)
-        print(f"\nSelected tool: {tool}")
-        print(f"Selected account: {account}")
-        # Hide secure fields when printing account details
-        account_details = config[tool]['accounts'][account].copy()
-        secure_fields = [f['name'] for f in __import__('devops_cli.config').config.TOOL_CONFIGS[tool]['fields'] if f['secure']]
-        for field in account_details:
-            if field in secure_fields:
-                account_details[field] = "<hidden>"
-        print(f"Account details: {account_details}")
+        config, tool, account = None, None, None
+        # For AWS SSO, skip account selection and config details
+        if tool != "aws_sso":
+            config, tool, account = create_or_load_config(prompt_input=prompt_input)
+            print(f"\nSelected tool: {tool}")
+            print(f"Selected account: {account}")
+            # Hide secure fields when printing account details
+            account_details = config[tool]['accounts'][account].copy()
+            secure_fields = [f['name'] for f in __import__('devops_cli.config').config.TOOL_CONFIGS[tool]['fields'] if f['secure']]
+            for field in account_details:
+                if field in secure_fields:
+                    account_details[field] = "<hidden>"
+            print(f"Account details: {account_details}")
 
         # Modular tool operation handling
         def handle_jira_cloud(creds, project_key, board_name):
@@ -86,41 +89,7 @@ def main():
                 print("Invalid operation choice.")
 
         # Tool dispatch
-        if tool == "jira_cloud":
-            creds = config[tool]['accounts'][account]
-            project_key = creds.get('default_project')
-            board_name = creds.get('default_board')
-            use_default = False
-            if project_key:
-                use_default = prompt_input(f"Use default project '{project_key}'? (y/n): ").strip().lower() == "y"
-            if not use_default:
-                project_key = prompt_input("Enter Jira project key: ").strip()
-            if not board_name:
-                board_name = prompt_input("Enter Jira board name: ").strip()
-            handle_jira_cloud(creds, project_key, board_name)
-        elif tool == "jira_server":
-            creds = config[tool]['accounts'][account]
-            project_key = creds.get('default_project')
-            board_name = creds.get('default_board')
-            use_default_project = False
-            use_default_board = False
-            if project_key:
-                use_default_project = prompt_input(f"Use default project '{project_key}'? (y/n): ").strip().lower() == "y"
-            if not use_default_project:
-                project_key = prompt_input("Enter Jira project key: ").strip()
-            if board_name:
-                use_default_board = prompt_input(f"Use default board '{board_name}'? (y/n): ").strip().lower() == "y"
-            if not use_default_board:
-                board_name = prompt_input("Enter Jira board name: ").strip()
-            while True:
-                handle_jira_server(creds, project_key, board_name)
-                next_action = prompt_input("\nPress Enter to perform another operation, type 'back' to select another tool, or 'exit' to quit: ").strip().lower()
-                if next_action == "back":
-                    break
-                if next_action == "exit":
-                    print("Exiting Digitalworks2020 DevOps CLI. Goodbye!")
-                    sys.exit(0)
-        elif tool == "aws_sso":
+        if tool == "aws_sso":
             from devops_cli.aws_client import AWSClient
             print("\nAWS SSO integration. No credentials required; uses default AWS CLI profile.")
             profiles = AWSClient.list_profiles()
@@ -163,6 +132,42 @@ def main():
                     print("Could not fetch previous month cost.")
             else:
                 print("Invalid operation choice.")
+        elif tool == "jira_cloud":
+            config, tool, account = create_or_load_config(prompt_input=prompt_input)
+            creds = config[tool]['accounts'][account]
+            project_key = creds.get('default_project')
+            board_name = creds.get('default_board')
+            use_default = False
+            if project_key:
+                use_default = prompt_input(f"Use default project '{project_key}'? (y/n): ").strip().lower() == "y"
+            if not use_default:
+                project_key = prompt_input("Enter Jira project key: ").strip()
+            if not board_name:
+                board_name = prompt_input("Enter Jira board name: ").strip()
+            handle_jira_cloud(creds, project_key, board_name)
+        elif tool == "jira_server":
+            config, tool, account = create_or_load_config(prompt_input=prompt_input)
+            creds = config[tool]['accounts'][account]
+            project_key = creds.get('default_project')
+            board_name = creds.get('default_board')
+            use_default_project = False
+            use_default_board = False
+            if project_key:
+                use_default_project = prompt_input(f"Use default project '{project_key}'? (y/n): ").strip().lower() == "y"
+            if not use_default_project:
+                project_key = prompt_input("Enter Jira project key: ").strip()
+            if board_name:
+                use_default_board = prompt_input(f"Use default board '{board_name}'? (y/n): ").strip().lower() == "y"
+            if not use_default_board:
+                board_name = prompt_input("Enter Jira board name: ").strip()
+            while True:
+                handle_jira_server(creds, project_key, board_name)
+                next_action = prompt_input("\nPress Enter to perform another operation, type 'back' to select another tool, or 'exit' to quit: ").strip().lower()
+                if next_action == "back":
+                    break
+                if next_action == "exit":
+                    print("Exiting Digitalworks2020 DevOps CLI. Goodbye!")
+                    sys.exit(0)
         else:
             prompt_input("\nPress Enter to continue or type 'exit' to quit: ")
 
