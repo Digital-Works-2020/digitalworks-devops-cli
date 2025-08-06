@@ -1,23 +1,30 @@
 # digitalworks-devops-cli
 
-A unified, modular CLI for DevOps operations across tools like Jira Cloud, Jira Server, AWS, and more. Built by Digitalworks2020.
+A unified, modular CLI for DevOps operations across tools like Jira Cloud, Jira Server, AWS SSO, and more. Built by Digitalworks2020.
 
 ## Features
-- Modular architecture: Easily add integrations for new tools (Jira Cloud, Jira Server, AWS, etc.)
-- User-driven, secure config creation at first run (multi-account, secure credentials)
-- Scalable, reliable, and enterprise-ready structure
-- Follows PEP8 and Codacy standards for maintainability
-- Open source (MIT License) with required credits for commercialization
+- **Highly modular architecture:** Each tool (Jira Cloud, Jira Server, AWS SSO, etc.) is a separate module with its own logic and configuration.
+- **Stateless AWS SSO:** No account management for AWS SSO; directly lists AWS CLI profiles and allows profile switching at runtime.
+- **Multi-account, secure config:** For tools like Jira, supports multiple accounts and secure credential storage.
+- **Interactive, user-friendly CLI:** Menu-driven, guides user through tool selection, account selection (where applicable), and operations.
+- **Extensible:** Add new tools by updating SUPPORTED_TOOLS and TOOL_CONFIGS in `config.py` and adding a new module.
+- **Enterprise-ready:** Scalable, reliable, and follows PEP8 and Codacy standards.
+- **Open source (MIT License):** Required credits for commercialization.
 
 ## Supported Tools
-- Jira Cloud (multi-account, secure credentials, default project/board)
-- Jira Server V9.0(multi-account, secure credentials, default project/board)
-- Modular for future tools
+- **Jira Cloud:** Multi-account, secure credentials, default project/board, analytics.
+- **Jira Server:** Multi-account, secure credentials, default project/board, analytics.
+- **AWS SSO:** Stateless, no account management, profile-based, supports cost analytics and profile switching at runtime.
+- **Modular for future tools:** Add new integrations easily.
 
-## Configuration
-Configuration is modular and supports multiple tools and accounts. Credentials are stored securely and you can set a default project/board for Jira Cloud and Jira Server accounts.
+## Usage & User Experience
+- On first run, the CLI greets you and prompts for tool selection.
+- For Jira tools, you can add, select, or delete accounts, and set defaults for project/board.
+- For AWS SSO, you select a profile from your AWS CLI config (no account management needed). You can switch profiles or tools at any time.
+- Each tool presents a menu of supported operations (e.g., analytics, cost, sprint info).
+- All sensitive credentials are handled securely and never printed.
 
-### Example Config
+### Example Config (Jira tools)
 ```
 {
   "jira_cloud": {
@@ -35,20 +42,20 @@ Configuration is modular and supports multiple tools and accounts. Credentials a
     "accounts": {
       "enterprise": {
         "url": "https://jira.company.com",
-        "username": "user@company.com",
-        "password": "...",
+        "api_token": "...",
         "default_project": "ENT",
         "default_board": "Enterprise Board"
       }
     }
-  }
+  },
+  "aws_sso": {}
 }
 ```
 
 ## Getting Started
 1. Clone the repo
-2. Install dependencies
-3. Run the CLI
+2. Install dependencies (see Pipfile)
+3. Run the CLI: `python -m devops_cli.main`
 
 ## Coding Standards
 - All code follows PEP8 and Codacy standards (typing, error handling, no debug prints in production)
