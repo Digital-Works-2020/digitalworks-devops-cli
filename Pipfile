@@ -6,6 +6,7 @@ verify_ssl = true
 [packages]
 jira = "==3.8.0"
 requests = "==2.32.4"
+boto3 = "==1.40.3"
 
 [requires]
 python_version = "3.10"

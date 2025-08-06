@@ -116,9 +116,8 @@ def create_or_load_config(prompt_input: Callable = input) -> Tuple[Dict[str, Any
         config = {tool: {"accounts": {}} for tool in SUPPORTED_TOOLS}
 
     tool: str = select_tool(prompt_input=prompt_input)
-
-    # For AWS SSO, skip all account logic and return immediately with dummy account name
-    if tool == "Aws_sso":
+    # Normalize tool name to lowercase for AWS SSO check
+    if tool.lower() == "aws_sso":
         return config, tool, "aws_sso_profile"
 
     accounts: Dict[str, Dict[str, str]] = config.get(tool, {}).get("accounts", {})

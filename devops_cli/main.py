@@ -16,10 +16,8 @@ def prompt_input(prompt):
 def main():
     print("\nWelcome to Digitalworks2020 DevOps CLI!")
     while True:
-        config, tool, account = None, None, None
-        # For AWS SSO, skip account selection and config details
+        config, tool, account = create_or_load_config(prompt_input=prompt_input)
         if tool != "aws_sso":
-            config, tool, account = create_or_load_config(prompt_input=prompt_input)
             print(f"\nSelected tool: {tool}")
             print(f"Selected account: {account}")
             # Hide secure fields when printing account details
