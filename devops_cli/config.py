@@ -33,11 +33,19 @@ TOOL_CONFIGS: Dict[str, Dict[str, Any]] = {
             {"key": "sprint_sp_stats", "label": "Get SP for Last 3 Sprint Stats"}
         ]
     },
+    "aws_sso": {
+        "fields": [],
+        "info": "AWS SSO integration. No credentials required; uses default AWS CLI profile.",
+        "operations": [
+            {"key": "current_month_cost", "label": "Get current month AWS cost"},
+            {"key": "prev_month_cost", "label": "Get previous month AWS cost (if exists)"}
+        ]
+    },
     # Future: Add 'aws', etc.
 }
 
 CONFIG_PATH: str = os.path.expanduser("~/.digitalworks_devops_cli_config.json")
-SUPPORTED_TOOLS: list[str] = ["jira_cloud", "jira_server"]  # Extendable for future tools
+SUPPORTED_TOOLS: list[str] = ["jira_cloud", "jira_server", "aws_sso"]  # Extendable for future tools
 
 def atomic_write_config(config: Dict[str, Any]) -> None:
     """

@@ -120,6 +120,49 @@ def main():
                 if next_action == "exit":
                     print("Exiting Digitalworks2020 DevOps CLI. Goodbye!")
                     sys.exit(0)
+        elif tool == "aws_sso":
+            from devops_cli.aws_client import AWSClient
+            print("\nAWS SSO integration. No credentials required; uses default AWS CLI profile.")
+            profiles = AWSClient.list_profiles()
+            if not profiles:
+                print("No AWS CLI profiles found. Please configure AWS CLI first.")
+                return
+            print("Available AWS profiles:")
+            for idx, prof in enumerate(profiles, 1):
+                print(f"{idx}. {prof}")
+            while True:
+                prof_choice = prompt_input(f"Select a profile (1-{len(profiles)}): ").strip()
+                if prof_choice.isdigit() and 1 <= int(prof_choice) <= len(profiles):
+                    profile = profiles[int(prof_choice) - 1]
+                    break
+                print("Invalid choice. Please try again.")
+            client = AWSClient(profile)
+            if not client.check_credentials():
+                AWSClient.sso_login(profile)
+                client = AWSClient(profile)
+            operations = __import__('devops_cli.config').config.TOOL_CONFIGS["aws_sso"].get('operations', [])
+            print("\nSupported AWS SSO Operations:")
+            for idx, op in enumerate(operations, 1):
+                print(f"{idx}. {op['label']}")
+            op_choice = prompt_input(f"Choose an operation (1-{len(operations)}): ").strip()
+            from datetime import datetime
+            now = datetime.utcnow()
+            if op_choice == "1":
+                cost = client.get_month_cost(now.year, now.month)
+                if cost is not None:
+                    print(f"Current month ({now.year}-{now.month:02d}) AWS cost: ${cost:.2f}")
+                else:
+                    print("Could not fetch current month cost.")
+            elif op_choice == "2":
+                prev_month = now.month - 1 if now.month > 1 else 12
+                prev_year = now.year if now.month > 1 else now.year - 1
+                cost = client.get_month_cost(prev_year, prev_month)
+                if cost is not None:
+                    print(f"Previous month ({prev_year}-{prev_month:02d}) AWS cost: ${cost:.2f}")
+                else:
+                    print("Could not fetch previous month cost.")
+            else:
+                print("Invalid operation choice.")
         else:
             prompt_input("\nPress Enter to continue or type 'exit' to quit: ")
 
