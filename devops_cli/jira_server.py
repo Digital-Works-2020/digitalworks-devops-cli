@@ -18,6 +18,49 @@ class JiraServerClient:
         self.api_token = api_token
         self.jira = JIRA(server=url, token_auth = api_token, validate=True)
 
+    def get_current_sprint_summary(self, board_name: str) -> Optional[dict]:
+        """
+        Get current sprint issues grouped by assignee and issue type (ignores story points).
+        Args:
+            board_name (str): The name of the Jira board.
+        Returns:
+            Dict mapping assignee to dict of issue type counts, or None if error.
+        """
+        board_id = self.get_board_id(board_name)
+        if board_id is None:
+            print(f"Board '{board_name}' not found.")
+            return None
+        sprint = self.get_active_sprint(board_id)
+        if sprint is None:
+            print(f"No active sprint found for board '{board_name}'.")
+            return None
+        sprint_id = getattr(sprint, 'id', None)
+        if sprint_id is None:
+            print("Sprint ID not found.")
+            return None
+        jql = f"sprint = {sprint_id}"
+        all_issues = []
+        start_at = 0
+        max_results = 50
+        while True:
+            try:
+                issues = self.jira.search_issues(jql, startAt=start_at, maxResults=max_results)
+            except Exception as exc:
+                print(f"Error fetching issues for sprint: {exc}")
+                return None
+            all_issues.extend(issues)
+            if len(issues) < max_results:
+                break
+            start_at += max_results
+        grouped = {}
+        for issue in all_issues:
+            assignee = getattr(issue.fields.assignee, 'displayName', 'Unassigned') if hasattr(issue.fields, 'assignee') and issue.fields.assignee else 'Unassigned'
+            issue_type = getattr(issue.fields.issuetype, 'name', 'Unknown') if hasattr(issue.fields, 'issuetype') else 'Unknown'
+            grouped.setdefault(assignee, {})
+            grouped[assignee].setdefault(issue_type, 0)
+            grouped[assignee][issue_type] += 1
+        return grouped
+
     def get_sprint_story_points_stats(self, board_name: str, num_sprints: int = 3) -> Optional[list[dict]]:
         """
         Get committed SP, achieved SP, and average SP for the last num_sprints closed sprints on the board using Jira sprint report.

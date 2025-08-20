@@ -14,13 +14,24 @@ A unified, modular CLI for DevOps operations across tools like Jira Cloud, Jira 
 ## Supported Tools
 - **Jira Cloud:** Multi-account, secure credentials, default project/board, analytics.
 - **Jira Server:** Multi-account, secure credentials, default project/board, analytics.
+  - **Current Sprint Grouping:** Group current sprint issues by assignee and issue type
 - **AWS SSO:** Stateless, no account management, profile-based, supports cost analytics and profile switching at runtime.
 - **Modular for future tools:** Add new integrations easily.
+
 
 ## Usage & User Experience
 - On first run, the CLI greets you and prompts for tool selection.
 - For Jira tools, you can add, select, or delete accounts, and set defaults for project/board.
-- For AWS SSO, you select a profile from your AWS CLI config (no account management needed). You can switch profiles or tools at any time.
+- For Jira Server, you can:
+  - Display current sprint name
+  - List your issues in the current sprint
+  - Get story points for the last 3 closed sprints
+  - Group current sprint issues by assignee and issue type
+
+- For AWS SSO:
+  - You select a profile from your AWS CLI config (no account management needed).
+  - You can switch profiles or tools at any time.
+  - For EC2 instance operations, you are prompted for the AWS region every time (region is not stored or defaulted).
 - Each tool presents a menu of supported operations (e.g., analytics, cost, sprint info).
 - All sensitive credentials are handled securely and never printed.
 

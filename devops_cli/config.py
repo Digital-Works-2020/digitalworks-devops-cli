@@ -30,7 +30,8 @@ TOOL_CONFIGS: Dict[str, Dict[str, Any]] = {
         "operations": [
             {"key": "current_sprint_name", "label": "Display current sprint name"},
             {"key": "my_issues_in_sprint", "label": "List my issues in current sprint"},
-            {"key": "sprint_sp_stats", "label": "Get SP for Last 3 Sprint Stats"}
+            {"key": "sprint_sp_stats", "label": "Get SP for Last 3 Sprint Stats"},
+            {"key": "current_sprint_summary", "label": "Current Sprint - Group by Assignee & Issue Type"}
         ]
     },
     "aws_sso": {

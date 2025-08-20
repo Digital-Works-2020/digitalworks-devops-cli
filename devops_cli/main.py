@@ -174,6 +174,16 @@ def main():
                         print(f"Avg Achieved SP (last 3): {avg_velocity:.2f}")
                     else:
                         print("No sprint stats available or error occurred.")
+                elif op_choice == "4":
+                    summary = client.get_current_sprint_summary(board_name)
+                    if summary:
+                        print("\nCurrent Sprint - Issues Grouped by Assignee & Issue Type:")
+                        for assignee, type_counts in summary.items():
+                            print(f"\nAssignee: {assignee}")
+                            for issue_type, count in type_counts.items():
+                                print(f"  {issue_type}: {count}")
+                    else:
+                        print("No data available or error occurred.")
                 else:
                     print("Invalid operation choice.")
                 next_action = prompt_input("\nPress Enter to perform another operation, type 'back' to select another tool, or 'exit' to quit: ").strip().lower()
