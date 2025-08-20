@@ -76,7 +76,11 @@ def main():
                         else:
                             print("Could not fetch previous month cost.")
                     elif op_choice == "3":
-                        state_map = client.list_instances_by_state()
+                        region = prompt_input("Enter AWS region for EC2 (e.g., us-east-1): ").strip()
+                        if not region:
+                            print("Region is required.")
+                            continue
+                        state_map = client.list_instances_by_state(region_name=region)
                         if not state_map:
                             print("No EC2 instances found or error occurred.")
                         else:

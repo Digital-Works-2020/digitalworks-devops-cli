@@ -17,9 +17,9 @@ class AWSClient:
         self.session = boto3.Session(profile_name=profile)
         self.ce = self.session.client('ce')
 
-    def list_instances_by_state(self) -> Dict[str, list]:
-        """List EC2 instances grouped by their state (e.g., running, stopped)."""
-        ec2 = self.session.client('ec2')
+    def list_instances_by_state(self, region_name: str) -> Dict[str, list]:
+        """List EC2 instances grouped by their state (e.g., running, stopped) in the specified region."""
+        ec2 = self.session.client('ec2', region_name=region_name)
         try:
             paginator = ec2.get_paginator('describe_instances')
             state_map = {}
