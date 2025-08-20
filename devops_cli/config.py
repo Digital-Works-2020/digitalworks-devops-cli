@@ -38,7 +38,8 @@ TOOL_CONFIGS: Dict[str, Dict[str, Any]] = {
         "info": "AWS SSO integration. No credentials required; uses AWS CLI profiles.",
         "operations": [
             {"key": "current_month_cost", "label": "Get current month AWS cost"},
-            {"key": "prev_month_cost", "label": "Get previous month AWS cost (if exists)"}
+            {"key": "prev_month_cost", "label": "Get previous month AWS cost (if exists)"},
+            {"key": "list_instances_by_state", "label": "List EC2 instances by state"}
         ]
     },
     # Future: Add 'aws', etc.
