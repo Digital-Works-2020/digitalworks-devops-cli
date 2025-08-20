@@ -15,16 +15,10 @@ This project is a unified, modular DevOps CLI for Digitalworks2020, supporting J
 - Each tool's main logic is implemented in its own function for maintainability and extensibility.
 
 **Config Structure:**
-- Uses a dictionary per tool, with an 'accounts' sub-dictionary for multiple account support (except AWS SSO).
-- Each tool defines its credential fields in a central config (see TOOL_CONFIGS in config.py).
-- JiraCloud and JiraServer are treated as separate tools (e.g., 'jira_cloud', 'jira_server'). Both support analytics and OOP design. Pipfile includes `jira` as a requirement.
-- AWS SSO is stateless: no account logic, no credential prompts, no config storage. Profiles are listed from the AWS CLI config at runtime, and users can switch profiles or tools interactively.
-- Easily extendable: add new tools by updating SUPPORTED_TOOLS and TOOL_CONFIGS, and adding a new main function for the tool.
+- Jira Server supports grouping current sprint issues by assignee and issue type 
 
 **User Experience:**
-- CLI is interactive and user-friendly, with clear prompts and validation.
-- Guides user through tool selection, account listing, credential entry, and allows users to delete accounts interactively (for tools that support accounts).
-- For AWS SSO, users select a profile at runtime and can switch profiles or tools at any time.
+- For Jira Server, the menu includes an option to group current sprint issues by assignee and issue type
 
 **Licensing:**
 - Open source (MIT). Credits to Digitalworks2020 required for commercialization.
