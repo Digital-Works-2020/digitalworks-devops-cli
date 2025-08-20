@@ -11,11 +11,37 @@ import subprocess
 import os
 
 class AWSClient:
-    """OOP client for AWS SSO cost operations."""
+    """OOP client for AWS SSO operations."""
     def __init__(self, profile: str) -> None:
         self.profile = profile
         self.session = boto3.Session(profile_name=profile)
         self.ce = self.session.client('ce')
+
+    def list_instances_by_state(self, region_name: str) -> Dict[str, list]:
+        """List EC2 instances grouped by their state (e.g., running, stopped) in the specified region."""
+        ec2 = self.session.client('ec2', region_name=region_name)
+        try:
+            paginator = ec2.get_paginator('describe_instances')
+            state_map = {}
+            for page in paginator.paginate():
+                for reservation in page.get('Reservations', []):
+                    for instance in reservation.get('Instances', []):
+                        state = instance.get('State', {}).get('Name', 'unknown')
+                        instance_id = instance.get('InstanceId')
+                        # Try to get Name tag
+                        name = None
+                        for tag in instance.get('Tags', []):
+                            if tag.get('Key') == 'Name':
+                                name = tag.get('Value')
+                                break
+                        entry = {'InstanceId': instance_id}
+                        if name:
+                            entry['Name'] = name
+                        state_map.setdefault(state, []).append(entry)
+            return state_map
+        except Exception as exc:
+            print(f"Error listing EC2 instances: {exc}")
+            return {}
 
     @staticmethod
     def list_profiles() -> list:

@@ -75,6 +75,18 @@ def main():
                             print(f"Previous month ({prev_year}-{prev_month:02d}) AWS cost: ${cost:.2f}")
                         else:
                             print("Could not fetch previous month cost.")
+                    elif op_choice == "3":
+                        region = prompt_input("Enter AWS region for EC2 (e.g., us-east-1): ").strip()
+                        if not region:
+                            print("Region is required.")
+                            continue
+                        state_map = client.list_instances_by_state(region_name=region)
+                        if not state_map:
+                            print("No EC2 instances found or error occurred.")
+                        else:
+                            print("\nEC2 Instance counts by state:")
+                            for state, instances in state_map.items():
+                                print(f"{state}: {len(instances)}")
                     else:
                         print("Invalid operation choice.")
                     next_action = prompt_input("\nPress Enter to perform another operation, type 'profile' to switch AWS profile, 'back' to select another tool, or 'exit' to quit: ").strip().lower()
