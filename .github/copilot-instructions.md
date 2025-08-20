@@ -22,7 +22,9 @@ This project is a unified, modular DevOps CLI for Digitalworks2020, supporting J
 - Easily extendable: add new tools by updating SUPPORTED_TOOLS and TOOL_CONFIGS, and adding a new main function for the tool.
 
 **User Experience:**
-- For Jira Server, the menu includes an option to group current sprint issues by assignee and issue type
+- CLI is interactive and user-friendly, with clear prompts and validation.
+- Guides user through tool selection, account listing, credential entry, and allows users to delete accounts interactively (for tools that support accounts).
+- For AWS SSO, users select a profile at runtime and can switch profiles or tools at any time.
 
 **Licensing:**
 - Open source (MIT). Credits to Digitalworks2020 required for commercialization.
